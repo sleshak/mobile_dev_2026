@@ -1,303 +1,236 @@
 # Лабораторная работа №3
-## Реализация списка объектов с фильтрацией с использованием .map, .filter, .sortedBy
 
-**Длительность:** 1 час 30 минут  
-**Цель работы:** Изучить функциональные методы обработки коллекций в Kotlin (`filter`, `map`, `sortedBy`) на примере списка объектов и вывести результаты в интерфейс Android-приложения.
+<div align="center">
+
+**МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ**  
+**ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ**  
+**«САХАЛИНСКИЙ ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ»**
+
+<br>
+<br>
+
+Институт естественных наук и техносферной безопасности  
+Кафедра информатики  
+**Каменев Александр Павлович**
+
+<br>
+<br>
+<br>
+<br>
+
+Лабораторная работа №3  
+**«Реализация списка объектов с фильтрацией с использованием .map, .filter, .sortedBy»**  
+01.03.02 Прикладная математика и информатика  
+3 курс
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div align="right">
+Научный руководитель<br>
+Соболев Евгений Игоревич
+</div>
+
+<br>
+<br>
+<br>
+
+г. Южно-Сахалинск  
+2026 г.
+
+</div>
 
 ---
 
-## 1. Теоретическая справка
+## Цель работы
 
-### 1.1. Функции высшего порядка для коллекций
-Kotlin предоставляет богатый набор функций для работы с коллекциями, которые принимают лямбда-выражения:
+Освоить функциональную обработку коллекций в Kotlin (`filter`, `map`, `sortedBy`, `sortedByDescending`) на примере списка объектов и отобразить результаты в Android-приложении.
 
-- **`filter`** – возвращает список, содержащий только элементы, удовлетворяющие условию.
-  ```kotlin
-  val numbers = listOf(1, 2, 3, 4, 5)
-  val even = numbers.filter { it % 2 == 0 } // [2, 4]
-  ```
+## Индивидуальное задание: список сотрудников
 
-- **`map`** – преобразует каждый элемент коллекции по заданному правилу, возвращая новый список.
-  ```kotlin
-  val numbers = listOf(1, 2, 3)
-  val squares = numbers.map { it * it } // [1, 4, 9]
-  ```
+Выполнен вариант **№2 — «Список сотрудников»**.
 
-- **`sortedBy`** – возвращает список, отсортированный по возрастанию значения, возвращаемого селектором.
-  ```kotlin
-  val people = listOf(Person("Alice", 30), Person("Bob", 25))
-  val sorted = people.sortedBy { it.age } // по возрасту
-  ```
+Требования:
 
-Эти функции можно комбинировать в цепочки:
-```kotlin
-val result = list
-    .filter { it.price > 100 }
-    .sortedBy { it.name }
-    .map { it.name }
-```
+- создать список сотрудников (имя, отдел, зарплата, стаж);
+- показать сотрудников с зарплатой больше 100 000 руб.;
+- отсортировать отобранных по стажу по убыванию;
+- вывести имена и отделы.
 
-### 1.2. Лямбда-выражения
-Лямбда – это анонимная функция, которая может быть передана как аргумент. В Kotlin синтаксис:
-```kotlin
-{ параметр -> тело }
-```
-Если параметр один, можно использовать неявное имя `it`.
+Проект: **lab3**, пакет `com.example.lab3`.
 
----
+## Скриншоты
+    
 
-## 2. Оборудование и программное обеспечение
+![Результат выполнения приложения](app.jpg)  
+*Рисунок 1 — Экран приложения: исходный список, фильтрация и сортировка*
 
-- Персональный компьютер с ОС Windows / macOS / Linux.
-- Android Studio с проектом (можно использовать проект из лабораторной работы №1 или создать новый).
-- Эмулятор или реальное устройство для запуска приложения.
+<br>
 
----
+![Структура проекта](struct.jpg)  
+*Рисунок 2 — Структура проекта, пакет `models` с классом `Employee`*
 
-## 3. Порядок выполнения работы
+<br>
 
-### Этап 1. Подготовка проекта (5 мин)
+![Код с цепочками вызовов](chaaain.jpg)  
+*Рисунок 3 — Цепочка `filter` → `sortedByDescending` → `map` в `MainActivity`*
 
-Откройте проект `MyFirstApp` (или создайте новый с Empty Activity). Убедитесь, что проект компилируется.
+## Листинги
 
-### Этап 2. Создание класса данных (10 мин)
-
-Создайте data class `Product` в пакете `com.example.myfirstapp.models` (создайте пакет `models`, если его нет). Класс должен содержать поля:
-- `name` (String)
-- `category` (String)
-- `price` (Double)
-- `inStock` (Boolean) – наличие на складе.
+### 1. Класс данных `Employee` (`Employee.kt`)
 
 ```kotlin
-package com.example.myfirstapp.models
+package com.example.lab3.models
 
-data class Product(
+data class Employee(
     val name: String,
-    val category: String,
-    val price: Double,
-    val inStock: Boolean
+    val department: String,
+    val salary: Double,
+    val experienceYears: Int
 )
 ```
 
-### Этап 3. Подготовка интерфейса (10 мин)
-
-В файле `activity_main.xml` создайте простой интерфейс для отображения трёх списков:
-- Исходный список (кратко)
-- Отфильтрованные товары (в наличии)
-- Отсортированные по цене и преобразованные в строки
-
-Используйте `LinearLayout` (вертикальный) и несколько `TextView` с фиксированными id.
+### 2. Разметка `activity_main.xml`
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Исходные товары:"
-        android:textStyle="bold"
-        android:textSize="18sp"/>
-
-    <TextView
-        android:id="@+id/textOriginal"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Товары в наличии:"
-        android:textStyle="bold"
-        android:textSize="18sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Исходный список сотрудников:"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
 
-    <TextView
-        android:id="@+id/textInStock"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+        <TextView
+            android:id="@+id/textOriginal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Товары после сортировки по цене (название и цена):"
-        android:textStyle="bold"
-        android:textSize="18sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Зарплата больше 100 000 руб.:"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
 
-    <TextView
-        android:id="@+id/textSorted"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/textHighSalary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"/>
 
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Зарплата &gt; 100 000, сортировка по стажу (убыв.), имя и отдел:"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/textSorted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+</ScrollView>
 ```
 
-### Этап 4. Создание списка товаров (10 мин)
-
-В `MainActivity` создайте функцию, которая возвращает тестовый список товаров.
+### 3. `MainActivity.kt`
 
 ```kotlin
-private fun getProducts(): List<Product> {
-    return listOf(
-        Product("Ноутбук", "Электроника", 75000.0, true),
-        Product("Мышь", "Электроника", 1500.0, true),
-        Product("Книга 'Котлин'", "Книги", 1200.0, false),
-        Product("Флешка 64GB", "Электроника", 2000.0, true),
-        Product("Блокнот", "Канцелярия", 300.0, true),
-        Product("Ручка", "Канцелярия", 50.0, false),
-        Product("Монитор", "Электроника", 25000.0, true)
-    )
-}
-```
+package com.example.lab3
 
-### Этап 5. Применение filter, map, sortedBy (20 мин)
-
-В `MainActivity` внутри `onCreate` получите список товаров и примените цепочки обработки. Результаты выведите в соответствующие `TextView`.
-
-```kotlin
-override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
-
-    val products = getProducts()
-
-    // 1. Исходный список (для наглядности преобразуем в строку)
-    val originalText = products.joinToString("\n") { "${it.name} – ${it.price} руб. (${if (it.inStock) "в наличии" else "нет"})" }
-    findViewById<TextView>(R.id.textOriginal).text = originalText
-
-    // 2. Фильтр: только товары в наличии
-    val inStockProducts = products.filter { it.inStock }
-    val inStockText = inStockProducts.joinToString("\n") { "${it.name} – ${it.price} руб." }
-    findViewById<TextView>(R.id.textInStock).text = inStockText
-
-    // 3. Цепочка: отфильтровать электронику, отсортировать по цене и получить список строк с названием и ценой
-    val electronicsSorted = products
-        .filter { it.category == "Электроника" && it.inStock }
-        .sortedBy { it.price }
-        .map { "${it.name} – ${it.price} руб." }
-    val electronicsText = electronicsSorted.joinToString("\n")
-    findViewById<TextView>(R.id.textSorted).text = electronicsText
-}
-```
-
-### Этап 6. Запуск приложения (10 мин)
-
-Запустите приложение на эмуляторе или устройстве. Убедитесь, что все `TextView` заполнены корректными данными. Проверьте, что фильтрация и сортировка работают как ожидается.
-
-### Этап 7. Эксперименты (оставшееся время)
-
-Измените условия фильтрации или сортировки, добавьте ещё одну цепочку (например, отобразить все товары дешевле 2000 рублей, отсортированные по названию). Пронаблюдайте изменения.
-
----
-
-## 4. Полный код MainActivity (для справки)
-
-```kotlin
-package com.example.myfirstapp
-
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
-import com.example.myfirstapp.models.Product
+import androidx.activity.ComponentActivity
+import com.example.lab3.models.Employee
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val products = getProducts()
+        val employees = getEmployees()
 
-        // Исходный список
-        val originalText = products.joinToString("\n") {
-            "${it.name} – ${it.price} руб. (${if (it.inStock) "в наличии" else "нет"})"
+        val originalText = employees.joinToString("\n") {
+            "${it.name} – ${it.department}, ${it.salary.toInt()} руб., стаж ${it.experienceYears} лет"
         }
         findViewById<TextView>(R.id.textOriginal).text = originalText
 
-        // Только в наличии
-        val inStockProducts = products.filter { it.inStock }
-        val inStockText = inStockProducts.joinToString("\n") { "${it.name} – ${it.price} руб." }
-        findViewById<TextView>(R.id.textInStock).text = inStockText
+        val highSalaryEmployees = employees.filter { it.salary > 100_000 }
+        val highSalaryText = highSalaryEmployees.joinToString("\n") {
+            "${it.name} – ${it.department}, ${it.salary.toInt()} руб."
+        }
+        findViewById<TextView>(R.id.textHighSalary).text = highSalaryText
 
-        // Электроника в наличии, отсортированная по цене
-        val electronicsSorted = products
-            .filter { it.category == "Электроника" && it.inStock }
-            .sortedBy { it.price }
-            .map { "${it.name} – ${it.price} руб." }
-        findViewById<TextView>(R.id.textSorted).text = electronicsSorted.joinToString("\n")
+        val sortedByExperience = employees
+            .filter { it.salary > 100_000 }
+            .sortedByDescending { it.experienceYears }
+            .map { "${it.name} – ${it.department}" }
+        findViewById<TextView>(R.id.textSorted).text = sortedByExperience.joinToString("\n")
     }
 
-    private fun getProducts(): List<Product> {
+    private fun getEmployees(): List<Employee> {
         return listOf(
-            Product("Ноутбук", "Электроника", 75000.0, true),
-            Product("Мышь", "Электроника", 1500.0, true),
-            Product("Книга 'Котлин'", "Книги", 1200.0, false),
-            Product("Флешка 64GB", "Электроника", 2000.0, true),
-            Product("Блокнот", "Канцелярия", 300.0, true),
-            Product("Ручка", "Канцелярия", 50.0, false),
-            Product("Монитор", "Электроника", 25000.0, true)
+            Employee("Каменев Александр", "Разработка", 150_000.0, 8),
+            Employee("Спивакова Екатерина", "Маркетинг", 85_000.0, 3),
+            Employee("Бычков Дмитрий", "Разработка", 120_000.0, 5),
+            Employee("Сбродов Артур", "Поломойщик", 95_000.0, 6),
+            Employee("Вдовина Милена", "Разработка", 180_000.0, 12),
+            Employee("Ощепков Алексей", "Маркетинг", 110_000.0, 4),
+            Employee("Пахомов Виктор", "Продажи", 75_000.0, 2)
         )
     }
 }
 ```
 
----
+## Ответы на контрольные вопросы
 
-## 5. Индивидуальные задания (вариативно)
+**1. Что возвращает `filter` — новый список или изменяет существующий?**
 
-Выберите одну из предметных областей и реализуйте аналогичную обработку списка:
+Возвращает новый список. Старый не меняется — у меня `employees` как был полным, так и остался после фильтра.
 
-1. **Список фильмов** (название, жанр, рейтинг, год выпуска).  
-   - Показать фильмы с рейтингом выше 8.0.
-   - Отсортировать их по году выпуска.
-   - Вывести список названий и рейтингов.
+**2. В чём разница между `sortedBy` и `sortedByDescending`?**
 
-2. **Список сотрудников** (имя, отдел, зарплата, стаж).  
-   - Показать сотрудников с зарплатой больше 100000.
-   - Отсортировать по стажу (по убыванию).
-   - Вывести имена и отделы.
+`sortedBy` — по возрастанию (2, 4, 12 лет стажа), `sortedByDescending` — наоборот, от большего к меньшему. Я для стажа брал второй вариант.
 
-3. **Список книг** (название, автор, год, количество страниц).  
-   - Показать книги, изданные после 2000 года.
-   - Отсортировать по количеству страниц.
-   - Вывести названия и авторов.
+**3. Как можно объединить несколько условий в `filter`?**
 
----
+Через `&&` и `||` внутри фигурных скобок, например: `filter { it.salary > 100_000 && it.department == "Разработка" }`.
 
-## 6. Контрольные вопросы
+**4. Для чего используется `map`? Приведите пример.**
 
-1. Что возвращает функция `filter` – новый список или изменяет существующий?
-2. В чём разница между `sortedBy` и `sortedByDescending`?
-3. Как можно объединить несколько условий в `filter`?
-4. Для чего используется функция `map`? Приведите пример.
-5. Что такое `joinToString` и как она работает?
+Чтобы из списка объектов сделать что-то другое — у меня из сотрудников строки: `.map { "${it.name} – ${it.department}" }`, потом их в TextView выводил.
 
----
+**5. Что такое `joinToString` и как она работает?**
 
-## 7. Требования к отчёту
+Склеивает список в одну строку. Я писал `joinToString("\n")`, чтобы каждый сотрудник был с новой строки на экране.
 
-Отчёт должен содержать:
-- Титульный лист с названием работы, ФИО, группой.
-- Цель работы.
-- Листинг класса `Product` и `MainActivity` (с добавленными цепочками).
-- Скриншот работающего приложения (с видимыми результатами фильтрации и сортировки).
-- Ответы на контрольные вопросы.
-- Вывод по работе.
+## Вывод
 
----
+Сделал приложение со списком сотрудников и вывел три блока на экран: весь список, только с зарплатой выше 100 000 и отсортированные по стажу с именем и отделом.
 
-## 8. Возможные ошибки и их решение
-
-- **Приложение падает с NullPointerException** – проверьте, что все `TextView` имеют правильные id в разметке.
-- **Не отображаются все товары** – убедитесь, что список не слишком велик для маленького экрана; можно поместить `TextView` в `ScrollView`.
-- **Сортировка работает неправильно** – проверьте, что для чисел используется правильный тип (Double, Int). Для строк сортировка лексикографическая.
-- **Не импортируются классы** – добавьте импорт `import com.example.myfirstapp.models.Product`.
-
----
-
-**Успешной работы!**
+Потренировался с `filter`, `map`, `sortedByDescending` и цепочками — когда пишешь подряд, удобнее, чем вручную перебирать список. Приложение на эмуляторе запускается, данные отображаются правильно. В целом цель работы понятна и выполнена.
