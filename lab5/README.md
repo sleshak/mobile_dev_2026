@@ -1,319 +1,254 @@
-# Лабораторная работа №5
-## Счетчик нажатий, поле ввода и отображение текста. Реализация ToDo-списка
+# Лабораторная работа №4
 
-**Длительность:** 1 час 30 минут  
-**Цель работы:** Научиться обрабатывать пользовательский ввод, работать с состоянием (счетчик, список задач), динамически обновлять интерфейс приложения на Kotlin.
+<div align="center">
+
+**МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ РОССИЙСКОЙ ФЕДЕРАЦИИ**  
+**ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ**  
+**«САХАЛИНСКИЙ ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ»**
+
+<br>
+<br>
+
+Институт естественных наук и техносферной безопасности  
+Кафедра информатики  
+**Каменев Александр Павлович**
+
+<br>
+<br>
+<br>
+<br>
+
+Лабораторная работа №4  
+**«Верстка экрана профиля пользователя (аватар, имя, кнопка „Редактировать“)»**  
+01.03.02 Прикладная математика и информатика  
+3 курс
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div align="right">
+Научный руководитель<br>
+Соболев Евгений Игоревич
+</div>
+
+<br>
+<br>
+<br>
+
+г. Южно-Сахалинск  
+2026 г.
+
+</div>
 
 ---
 
-## 1. Теоретическая справка
+## Цель работы
 
-### 1.1. Компоненты для ввода и отображения
-- **`EditText`** – поле для ввода текста пользователем. Получить текст можно методом `text.toString()`.
-- **`TextView`** – для вывода текста.
-- **`Button`** – кнопка для выполнения действия.
+Освоить вёрстку экрана в Android на `ConstraintLayout`, работу с `ImageView`, `TextView`, `Button`, ресурсами (`strings`, `colors`, `dimens`) и обработку нажатий кнопки.
 
-### 1.2. Обработка событий
-Установка слушателя на кнопку:
-```kotlin
-button.setOnClickListener {
-    // действия при нажатии
-}
-```
+## Индивидуальное задание №2 — редактирование по нажатию
 
-### 1.3. Работа со списками
-Для хранения задач удобно использовать `MutableList<String>`:
-```kotlin
-val tasks = mutableListOf<String>()
-tasks.add("Новая задача")
-```
-Для отображения всех задач в одном `TextView` можно преобразовать список в строку с разделителем:
-```kotlin
-textView.text = tasks.joinToString("\n") // каждая задача с новой строки
-```
+По нажатию **«Редактировать»** имя и статус заменяются на `EditText`, кнопка меняется на **«Сохранить»**. После сохранения текст обновляется на экране, поля ввода скрываются, показывается Toast.
 
-### 1.4. Обновление интерфейса
-При изменении данных (счетчика, списка задач) нужно вручную обновить соответствующие `TextView` (присвоить новые значения).
+Проект: **lab4**, пакет `com.example.lab4`.
 
-### 1.5. Сохранение состояния при повороте экрана
-По умолчанию при повороте экрана активность пересоздаётся и данные теряются. Для их сохранения можно использовать `onSaveInstanceState` или `ViewModel`, но в рамках лабораторной достаточно отметить эту особенность.
+## Скриншоты
 
----
+![Экран профиля](app.jpg)  
+*Рисунок 1 — Профиль в режиме просмотра*
 
-## 2. Оборудование и программное обеспечение
+<br>
 
-- Персональный компьютер с ОС Windows / macOS / Linux.
-- Android Studio с установленным SDK.
-- Эмулятор или реальное устройство для запуска приложения.
+![Режим редактирования](edit.jpg)  
+*Рисунок 2 — Режим редактирования с EditText и кнопкой «Сохранить»*
 
----
+<br>
 
-## 3. Порядок выполнения работы
+![Структура проекта](struct.jpg)  
+*Рисунок 3 — Структура проекта и ресурсы*
 
-### Этап 1. Создание нового проекта (5 мин)
+## Листинги
 
-Создайте новый проект с шаблоном **Empty Views Activity**:
-- **Name:** `TodoApp`
-- **Package name:** `com.example.todoapp`
-- **Language:** Kotlin
-- **Minimum SDK:** API 24
-
-### Этап 2. Подготовка ресурсов (5 мин)
-
-В файл `res/values/strings.xml` добавьте необходимые строки:
-```xml
-<resources>
-    <string name="app_name">TodoApp</string>
-    <string name="counter_text">Счётчик: %d</string>
-    <string name="button_increment">+1</string>
-    <string name="hint_input">Введите текст</string>
-    <string name="button_show">Показать</string>
-    <string name="button_add_task">Добавить задачу</string>
-    <string name="label_entered">Вы ввели:</string>
-    <string name="label_tasks">Список задач:</string>
-</resources>
-```
-
-### Этап 3. Верстка интерфейса (20 мин)
-
-Откройте `activity_main.xml`. Создайте экран с тремя функциональными блоками, используя `LinearLayout` (вертикальный) или `ConstraintLayout`. Пример разметки на `LinearLayout`:
+### 1. `activity_main.xml`
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/gray_light"
+    tools:context=".MainActivity">
 
-    <!-- Блок 1: Счётчик -->
+    <ImageView
+        android:id="@+id/imageAvatar"
+        android:layout_width="@dimen/avatar_size"
+        android:layout_height="@dimen/avatar_size"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:contentDescription="@string/profile_name"
+        android:elevation="4dp"
+        android:src="@drawable/logo"
+        app:layout_constraintBottom_toTopOf="@+id/textName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
-        android:id="@+id/textCounter"
+        android:id="@+id/textName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/counter_text"
-        android:textSize="24sp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginTop="@dimen/margin_small"
+        android:text="@string/profile_name"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_name"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageAvatar" />
 
-    <Button
-        android:id="@+id/buttonIncrement"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_increment"
-        android:layout_marginBottom="24dp"/>
-
-    <!-- Блок 2: Поле ввода и отображение текста -->
     <EditText
-        android:id="@+id/editTextInput"
-        android:layout_width="match_parent"
+        android:id="@+id/editName"
+        android:layout_width="@dimen/edit_min_width"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_input"
-        android:inputType="text"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/buttonShow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_show"
-        android:layout_marginBottom="8dp"/>
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageAvatar" />
 
     <TextView
-        android:id="@+id/textEntered"
+        android:id="@+id/textStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_entered"
-        android:textSize="18sp"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginTop="@dimen/margin_small"
+        android:text="@string/profile_status"
+        android:textColor="@color/purple_500"
+        android:textSize="@dimen/text_size_status"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textName" />
 
-    <!-- Блок 3: ToDo список -->
     <EditText
-        android:id="@+id/editTextTask"
-        android:layout_width="match_parent"
+        android:id="@+id/editStatus"
+        android:layout_width="@dimen/edit_min_width"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_input"
-        android:inputType="text"
-        android:layout_marginBottom="8dp"/>
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editName" />
 
     <Button
-        android:id="@+id/buttonAddTask"
+        android:id="@+id/buttonEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_add_task"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginTop="@dimen/margin_normal"
+        android:backgroundTint="@color/purple_200"
+        android:text="@string/button_edit"
+        app:cornerRadius="@dimen/button_corner_radius"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textStatus" />
 
-    <TextView
-        android:id="@+id/textTasks"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:text="@string/label_tasks"
-        android:textSize="18sp"
-        android:background="#F0F0F0"
-        android:padding="8dp"/>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-### Этап 4. Реализация счётчика (10 мин)
-
-В `MainActivity` объявите переменную-счётчик и обновляйте её при нажатии кнопки.
+### 2. `MainActivity.kt`
 
 ```kotlin
+package com.example.lab4
+
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
 class MainActivity : AppCompatActivity() {
-    private var counter = 0
+
+    private var isEditing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val textCounter = findViewById<TextView>(R.id.textCounter)
-        val buttonIncrement = findViewById<Button>(R.id.buttonIncrement)
+        val textName = findViewById<TextView>(R.id.textName)
+        val textStatus = findViewById<TextView>(R.id.textStatus)
+        val editName = findViewById<EditText>(R.id.editName)
+        val editStatus = findViewById<EditText>(R.id.editStatus)
+        val buttonEdit = findViewById<Button>(R.id.buttonEdit)
 
-        // Начальное значение
-        updateCounterDisplay(textCounter)
-
-        buttonIncrement.setOnClickListener {
-            counter++
-            updateCounterDisplay(textCounter)
+        buttonEdit.setOnClickListener {
+            if (!isEditing) {
+                editName.setText(textName.text)
+                editStatus.setText(textStatus.text)
+                textName.visibility = View.GONE
+                textStatus.visibility = View.GONE
+                editName.visibility = View.VISIBLE
+                editStatus.visibility = View.VISIBLE
+                buttonEdit.setText(R.string.button_save)
+                isEditing = true
+            } else {
+                textName.text = editName.text.toString().trim()
+                textStatus.text = editStatus.text.toString().trim()
+                editName.visibility = View.GONE
+                editStatus.visibility = View.GONE
+                textName.visibility = View.VISIBLE
+                textStatus.visibility = View.VISIBLE
+                buttonEdit.setText(R.string.button_edit)
+                Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_SHORT).show()
+                isEditing = false
+            }
         }
     }
-
-    private fun updateCounterDisplay(textView: TextView) {
-        textView.text = getString(R.string.counter_text, counter)
-    }
 }
 ```
 
-### Этап 5. Отображение введенного текста (10 мин)
+### 3. Ресурсы (`strings.xml`, фрагмент)
 
-Добавьте обработку кнопки "Показать", чтобы текст из `EditText` отображался в отдельном `TextView`.
-
-```kotlin
-val editTextInput = findViewById<EditText>(R.id.editTextInput)
-val buttonShow = findViewById<Button>(R.id.buttonShow)
-val textEntered = findViewById<TextView>(R.id.textEntered)
-
-buttonShow.setOnClickListener {
-    val inputText = editTextInput.text.toString()
-    textEntered.text = getString(R.string.label_entered) + " $inputText"
-}
+```xml
+<string name="profile_name">Каменев Александр</string>
+<string name="profile_status">Прикладная математика и информатика</string>
+<string name="button_edit">Редактировать</string>
+<string name="button_save">Сохранить</string>
+<string name="toast_saved">Профиль сохранён</string>
 ```
 
-### Этап 6. Реализация ToDo-списка (20 мин)
+## Ответы на контрольные вопросы
 
-Создайте список задач, кнопку добавления и обновление отображения.
+**1. Для чего используется ConstraintLayout? Какие преимущества перед LinearLayout?**
 
-```kotlin
-val editTextTask = findViewById<EditText>(R.id.editTextTask)
-val buttonAddTask = findViewById<Button>(R.id.buttonAddTask)
-val textTasks = findViewById<TextView>(R.id.textTasks)
+Нужен, чтобы привязывать элементы друг к другу и к краям экрана. Удобнее, когда много виджетов на одном экране — не получается длинная вложенность, как у нескольких LinearLayout подряд.
 
-val tasks = mutableListOf<String>()
+**2. Что такое атрибуты `app:layout_constraint...`?**
 
-buttonAddTask.setOnClickListener {
-    val task = editTextTask.text.toString()
-    if (task.isNotBlank()) {
-        tasks.add(task)
-        updateTasksDisplay()
-        editTextTask.text.clear() // очищаем поле ввода
-    } else {
-        Toast.makeText(this, "Введите задачу", Toast.LENGTH_SHORT).show()
-    }
-}
+Это ограничения (constraints): к чему привязан край виджета — к родителю или к другому элементу. Без них в ConstraintLayout элемент может «уехать» или не показаться.
 
-private fun updateTasksDisplay() {
-    if (tasks.isEmpty()) {
-        textTasks.text = getString(R.string.label_tasks)
-    } else {
-        textTasks.text = tasks.joinToString("\n• ") { "• $it" }
-    }
-}
-```
+**3. Как вынести размеры и цвета в ресурсы? Зачем это нужно?**
 
-### Этап 7. Запуск и тестирование (10 мин)
+Пишут в `colors.xml`, `dimens.xml`, `strings.xml` и подключают через `@color/...`, `@dimen/...`, `@string/...`. Так проще менять дизайн в одном месте и не дублировать значения в разметке.
 
-Запустите приложение на эмуляторе или устройстве. Проверьте:
-- Счётчик увеличивается при каждом нажатии.
-- Введённый текст отображается после нажатия "Показать".
-- Задачи добавляются в список и отображаются.
+**4. Как обработать клик на кнопке в Kotlin?**
 
-### Этап 8. Дополнительные улучшения (оставшееся время, 10 мин)
+Через `setOnClickListener { ... }` — внутри лямбды код, который выполнится при нажатии. У меня там переключение режима редактирования и сохранение.
 
-1. Добавьте кнопку для сброса счётчика.
-2. Добавьте кнопку для удаления последней задачи.
-3. Обратите внимание, что при повороте экрана данные теряются. Для сохранения можно использовать `onSaveInstanceState` (по желанию).
+**5. Как добавить обработчик нажатия на ImageView?**
 
-Пример сохранения состояния:
+Так же: `imageAvatar.setOnClickListener { ... }`. ImageView по умолчанию кликабельный, если не отключить `clickable`.
 
-```kotlin
-override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putInt("counter", counter)
-    outState.putStringArrayList("tasks", ArrayList(tasks))
-}
+## Вывод
 
-override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-    super.onRestoreInstanceState(savedInstanceState)
-    counter = savedInstanceState.getInt("counter")
-    tasks.clear()
-    tasks.addAll(savedInstanceState.getStringArrayList("tasks") ?: emptyList())
-    updateCounterDisplay(findViewById(R.id.textCounter))
-    updateTasksDisplay()
-}
-```
-
----
-
-## 4. Индивидуальные задания (вариативно)
-
-Выберите одно из заданий для самостоятельной доработки:
-
-1. **Удаление задач**  
-   Добавьте второе поле ввода для номера задачи (индекса) и кнопку "Удалить по индексу". При нажатии задача с указанным индексом удаляется из списка (с проверкой границ).
-
-2. **Счётчик задач**  
-   Добавьте `TextView`, показывающий общее количество задач в списке. Обновляйте его при каждом добавлении.
-
-3. **Очистка всех задач**  
-   Добавьте кнопку "Очистить всё", которая удаляет все задачи и обновляет отображение.
-
-4. **Редактирование задачи**  
-   Добавьте возможность редактирования: при долгом нажатии на задачу (в списке) она появляется в поле ввода для изменения, и кнопка "Добавить" меняет текст на "Обновить". (Сложно, требует динамического управления)
-
----
-
-## 5. Контрольные вопросы
-
-1. Как получить текст из `EditText`?
-2. Почему при повороте экрана данные (счётчик, список задач) сбрасываются? Как это можно исправить?
-3. Для чего используется `joinToString`? Как изменить разделитель?
-4. В чём разница между `List` и `MutableList`?
-5. Как очистить поле ввода после добавления задачи?
-
----
-
-## 6. Требования к отчёту
-
-Отчёт должен содержать:
-- Титульный лист с названием работы, ФИО, группой.
-- Цель работы.
-- Листинг файла `activity_main.xml`.
-- Листинг `MainActivity.kt` с полным кодом (включая дополнительные улучшения, если выполнялись).
-- Скриншот работающего приложения с демонстрацией всех функций (счётчик, отображение текста, список задач).
-- Ответы на контрольные вопросы.
-- Вывод по работе.
-
----
-
-## 7. Возможные ошибки и их решение
-
-- **Поле `EditText` не очищается** – проверьте, что вызван метод `editTextTask.text.clear()`.
-- **Список задач не обновляется на экране** – убедитесь, что после изменения списка вызвана `updateTasksDisplay()`.
-- **При повороте экрана данные пропадают** – это ожидаемо без сохранения. Для демонстрации можно показать, как использовать `onSaveInstanceState`.
-- **Текст в `TextView` не переносится на новую строку** – используйте `\n` в строке или `joinToString("\n")`.
-
----
-
-**Успешной работы!**
+Сверстал экран профиля с аватаром, именем, статусом и кнопкой. Вынес строки, цвета и размеры в ресурсы. Для ИЗ №2 сделал переключение TextView ↔ EditText и смену текста кнопки на «Сохранить». После сохранения данные на экране обновляются, появляется Toast. Приложение запускается на эмуляторе, цель работы выполнена.
